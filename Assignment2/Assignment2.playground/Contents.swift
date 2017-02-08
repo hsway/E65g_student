@@ -86,7 +86,7 @@ import Foundation
  two integer variables: `row` and `col` in that order
 */
 // ** Your Problem 1 code goes here! replace the following line **
-typealias Position = (row: Int, col: Int) test change for github with 'push to remote'
+typealias Position = (row: Int, col: Int)
 /*:
  ## Problem 2: 
  Using the enum `CellState` defined below:
