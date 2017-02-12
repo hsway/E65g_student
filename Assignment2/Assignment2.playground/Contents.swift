@@ -101,10 +101,15 @@ typealias Position = (row: Int, col: Int)
 enum CellState {
     // ** Your Problem 2 code goes here! Replace the contents of CellState **
     //  This shell code is here so that at all times the playground compiles and runs
-    case empty
+    case alive, empty, born, died
     
     var isAlive: Bool {
-        return false
+        switch self {
+            case .alive, .born:
+                return true
+            default:
+                return false
+        }
     }
 }
 /*:
@@ -117,8 +122,8 @@ enum CellState {
 // A struct representing a Cell in Conway's Game of Life
 struct Cell {
     // ** Your Problem 3 code goes here! replace the following two lines **
-    var position: Position
-    var state: CellState
+    var position = (0,0)
+    var state = CellState.empty
 }
 /*:
  ## Problem 4:
@@ -129,28 +134,28 @@ struct Cell {
  */
 // ** Your Problem 4.1 answer goes here **
 /*
- 
+ They allow you to omit the argument labels for the first two parameters when calling the function.
  */
 /*:
  2. what is the type of the `transform` variable?
  */
 // ** Your Problem 4.2 answer goes here **
 /*
- 
+ a function that takes an (Int, Int) tuple parameter and returns type T
  */
 /*:
  3. what is the return type of `map2`?
  */
 // ** Your Problem 4.3 answer goes here **
 /*
- 
+ a 2-d array of type T
  */
 /*:
  4. what is `T` in this declaration?
  */
 // ** Your Problem 4.4 answer goes here **
 /*
- 
+ a placeholder for a type
  */
 // A function which is like the standard map function but
 // which will operate only on a two dimensional array
