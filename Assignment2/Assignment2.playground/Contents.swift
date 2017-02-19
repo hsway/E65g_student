@@ -180,7 +180,7 @@ func map2<T>(_ rows: Int, _ cols: Int, transform: (Int, Int) -> T) -> [[T]] {
 */
 // ** Your Problem 5 comment goes here! **
 /*
- 
+ They represent the positions of the neighbors of a given cell.
  */
 /*:
  ## Problem 6:
@@ -222,16 +222,21 @@ struct Grid {
     ]
     
     // ** Your Problem 6 code goes here! Change the following two lines **
-    var rows: Int = 0
-    var cols: Int = 0
+    var rows: Int = 10
+    var cols: Int = 10
     var cells: [[Cell]] = [[Cell]]()
     
     init(_ rows: Int,
          _ cols: Int,
          cellInitializer: (Int, Int) -> CellState = { _,_ in .empty } ) {
         // ** Your Problem 7 code goes here! **
+        self.rows = rows
+        self.cols = cols
+        cells = [[Cell]](repeatElement([Cell](repeatElement(Cell(), count: cols)), count: rows))
         map2(rows, cols) { row, col in
             // ** Your Problem 8 code goes here! **
+            cells[row][col].position = (row,col)
+            cells[row][col].state = cellInitializer(row,col)
         }
     }
 }
@@ -271,7 +276,7 @@ struct Grid {
  */
 // ** your problem 10.1 answer goes here.
 /*
- 
+ to specify the cell whose neighbors you want to find
  */
 /*:
  2. Explain in one sentence when you would use the word `cell` in relation to this function
@@ -288,10 +293,15 @@ extension Grid {
     func neighbors(of cell: Cell) -> [Position] {
         return Grid.offsets.map {
             // ** Your Problem 9 Code goes here! replace the following line **
-            return Position(row: $0, col: $1)
+            let r = ((($0 + cell.position.0) % rows) + rows) % rows
+            let c = ((($1 + cell.position.1) % cols) + cols) % cols
+            return Position(r, c)
         }
     }
 }
+
+//var myGrid = Grid(8,8)
+//print(myGrid.neighbors(of: myGrid.cells[0][0]))
 /*:
  ## Problem 11:
  I am providing the following function, reduce2. Answer the following questions
@@ -340,7 +350,7 @@ extension Grid {
     var numLiving: Int {
         return reduce2(self.rows, self.cols) { total, row, col in
             // ** Replace the following line with your Problem 12 code
-            return 0
+            return (self.cells[row][col].state.isAlive ? total + 1 : total)
         }
     }
 }
@@ -372,15 +382,15 @@ extension Grid {
 // Code to initialize a 10x10 grid, set up every cell in the grid
 // and randomly turn each cell on or off.  Uncomment following 4 lines
 // and replace `.empty` with your one line of code
-//var grid = Grid(10, 10) { row, col in 
-//   // ** Your Problem 13 code goes here! **
-//   .empty
-//}
-//grid.numLiving
+var grid = Grid(10, 10) { row, col in
+   // ** Your Problem 13 code goes here! **
+   arc4random_uniform(3) == 2 ? .alive : .empty
+}
+grid.numLiving
 
 // ** Your Problem 13 comment goes here! **
 /*
- 
+ In this grid of 100 cells, the probability of a cell being assigned an 'alive' state is 1:3; therefore, it should have approximately 33 living cells.
  */
 /*:
  ## Problem 14:
