@@ -120,7 +120,7 @@ enum CellState {
 // A struct representing a Cell in Conway's Game of Life
 struct Cell {
     // ** Your Problem 3 code goes here! replace the following two lines **
-    var position = (row: 0, col: 0)
+    var position = Position(row: 0, col: 0)
     var state = CellState.empty
 }
 /*:
@@ -233,6 +233,7 @@ struct Grid {
         cells = [[Cell]](repeatElement([Cell](repeatElement(Cell(position:(0,0), state: .empty), count: cols)), count: rows))
         
         map2(rows, cols) { row, col in
+            // problem 8 code below
             cells[row][col].position = (row,col)
             cells[row][col].state = cellInitializer(row,col)
         }
@@ -274,14 +275,14 @@ struct Grid {
  */
 // ** your problem 10.1 answer goes here.
 /*
- when calling the function
+ when calling the function - external name
  */
 /*:
  2. Explain in one sentence when you would use the word `cell` in relation to this function
  */
 // ** your problem 10.2 answer goes here.
 /*
- when using the paramater in the function
+ when using the paramater in the function - internal name
  */
 // An extension of Grid to add a function for computing the positions
 // of the 8 neighboring cells of a given cell
@@ -307,6 +308,10 @@ extension Grid {
 // ** Your Problem 11.1 answer goes here **
 /*
   sum a series of values determined by row and col
+ when you use reduce2, you define combine (a function) on the fly because it's a closure
+ combine can be any function with that signature
+ reduce2 will be used to determine number of living things are in grid
+ map and reduce are kinds of for loops - map gives you a sequence, reduce gives you a single value
  */
 /*:
  2. what is the return type of reduce2?
@@ -348,6 +353,12 @@ extension Grid {
             // ** Replace the following line with your Problem 12 code
             return cells[row][col].state.isAlive ? total + 1 : total
         }
+        // using trailing closure syntax to implement 'combine' - in curly braces above, not in parens
+        // any time you see a function call followed by curly brace, think trailing closure syntax
+        // second order function - passed into the first function as an argument
+        // don't need to specify name of argument (combine) in your code
+        // total, row, col are the three arguments that the closure is being passed
+        // closure either returns total or total + 1 depending on if the cell in question is alive or not
     }
 }
 /*:
@@ -381,8 +392,10 @@ extension Grid {
 var grid = Grid(10, 10) { row, col in 
    // ** Your Problem 13 code goes here! **
     arc4random_uniform(3) == 2 ? .alive : .empty
+    // again, passed in in trailing closure syntax - this function is 'cellInitializer' - takes (int, int), returns CellState
 }
 grid.numLiving
+// numLiving is a computed variable
 
 // ** Your Problem 13 comment goes here! **
 /*
@@ -412,7 +425,7 @@ extension Grid {
     subscript (row: Int, col: Int) -> Cell? {
         get {
             // ** Your Problem 14 `get` code goes here! replace the following line **
-            guard row >= 0 && row < rows && col >= 0 && col < cols else { return nil }
+            guard row >= 0 && row < rows && col >= 0 && col < cols else { return nil } // if these conditions not met, return nil
             return cells[row][col]
         }
         set {
@@ -481,7 +494,7 @@ extension Grid {
 
 // Problem 17 comment goes here
 /*
-  returns the Cell at position row and col
+  $1 is a Position to be used to reference a cell in the grid
  */
 
 /*:
@@ -510,6 +523,8 @@ extension Grid {
             }
     }
 }
+// neighbors(of:) returns an array of positions, then we're reducing that array
+// $0 is an int (total), $1 is a Position (position)
 /*:
  ## Problem 19:
  In the extension to `Grid` shown below, implement a function nextState which:
@@ -543,6 +558,7 @@ extension Grid {
         }
     }
 }
+// this is whole logic of GoL
 /*:
  ## Problem 20:
  In the location shown in the following extension of Grid, write precisely one line of
