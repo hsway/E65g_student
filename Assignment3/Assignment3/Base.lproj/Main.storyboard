@@ -29,6 +29,11 @@
                                     <constraint firstAttribute="width" constant="240" id="7KZ-Md-7sQ"/>
                                     <constraint firstAttribute="height" constant="240" id="Z8V-Py-W6u"/>
                                 </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="size">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KF5-wW-9bE">
                                 <rect key="frame" x="40" y="126" width="32" height="30"/>
@@ -46,6 +51,11 @@
                             <constraint firstItem="8I9-EI-9HU" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="pJP-p3-GxY"/>
                         </constraints>
                     </view>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="size">
+                            <integer key="value" value="3"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="theGrid" destination="8I9-EI-9HU" id="pBe-zw-Lbl"/>
                     </connections>
