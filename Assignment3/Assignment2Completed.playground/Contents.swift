@@ -439,7 +439,11 @@ extension Grid {
  */
 // Problem 15.2 answer goes here
 /*
+<<<<<<< HEAD
  Cell?
+=======
+ Cell? or Optional<Cell>
+>>>>>>> 61b1b8186a4b8a392856c41f2ba173b838eb95fe
  */
 /*:
  3. why those two types are different?
@@ -481,7 +485,11 @@ extension Grid {
 
 // Problem 17 comment goes here
 /*
+<<<<<<< HEAD
   returns the Cell at position row and col
+=======
+  $1 is a Position to be used to reference a cell in the grid
+>>>>>>> 61b1b8186a4b8a392856c41f2ba173b838eb95fe
  */
 
 /*:
