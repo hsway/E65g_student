@@ -37,7 +37,7 @@ public let lazyPositions = { (size: GridSize) in
         .map { zip( [Int](repeating: $0, count: size.cols) , 0 ..< size.cols ) }
         .flatMap { $0 }
         .map { GridPosition($0) }
-//        .map { GridPosition(row: $0.0,col: $0.1) }
+    //        .map { GridPosition(row: $0.0,col: $0.1) }
 }
 
 
@@ -78,7 +78,7 @@ extension GridProtocol {
 public struct Grid: GridProtocol {
     private var _cells: [[CellState]]
     public let size: GridSize
-
+    
     public subscript (row: Int, col: Int) -> CellState {
         get { return _cells[norm(row, to: size.rows)][norm(col, to: size.cols)] }
         set { _cells[norm(row, to: size.rows)][norm(col, to: size.cols)] = newValue }
@@ -189,18 +189,20 @@ class StandardEngine: EngineProtocol {
     var refreshTimer: Timer?
     var refreshRate: TimeInterval = 0.0 {
         didSet {
+            refreshTimer?.invalidate()
+            refreshTimer = nil
             if refreshRate > 0.0 {
-                refreshTimer? = Timer.scheduledTimer(
+                refreshTimer = Timer.scheduledTimer(
                     withTimeInterval: refreshRate,
                     repeats: true
                 ) { (t: Timer) in
                     _ = self.step()
                 }
             }
-            else {
-                refreshTimer?.invalidate()
-                refreshTimer = nil
-            }
+            /*else {
+             refreshTimer?.invalidate()
+             refreshTimer = nil
+             }*/
         }
     }
     

@@ -9,7 +9,7 @@
 import UIKit
 
 class InstrumentationViewController: UIViewController, UITextFieldDelegate {
-
+    
     @IBOutlet weak var sizeTextField: UITextField!
     @IBOutlet weak var sizeStepper: UIStepper!
     
@@ -17,11 +17,8 @@ class InstrumentationViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var refreshRateSlider: UISlider!
     @IBOutlet weak var refreshOnOffSwitch: UISwitch!
     
-    /*func engineDidUpdate(withGrid: GridProtocol) {
-        
-    }*/
-
     var engine: StandardEngine!
+    //var refreshRatePreviousValue: Float = 0.1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +26,13 @@ class InstrumentationViewController: UIViewController, UITextFieldDelegate {
         engine = StandardEngine.getEngine()
         sizeTextField.text = "\(engine.size)"
         sizeStepper.value = Double(engine.size)
+        refreshRateSlider.value = refreshRateSlider.maximumValue
+        refreshRateSlider.isEnabled = false
+        refreshRateTextField.text = "\(refreshRateSlider.value)"
+        refreshRateTextField.isEnabled = false
+        refreshOnOffSwitch.isOn = false
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -41,7 +43,7 @@ class InstrumentationViewController: UIViewController, UITextFieldDelegate {
         guard let val = Int(text) else {
             showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
                 //sender.text = "\(StandardEngine.getEngine().rows)"
-                sender.text = "\(StandardEngine.getEngine().size)"
+                sender.text = "\(self.engine.size)"
             }
             return
         }
@@ -51,44 +53,64 @@ class InstrumentationViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func gridSizeEditingDidEndOnExit(_ sender: Any) {
     }
+    
     @IBAction func sizeStep(_ sender: Any) {
         updateGridSize(size: Int(sizeStepper.value))
     }
     
     private func updateGridSize(size: Int) {
-        engine = StandardEngine.getEngine()
-        engine.refreshRate = 0.0
-        engine.setGridSize(size: size)
-        sizeTextField.text = "\(size)"
+        //engine = StandardEngine.getEngine()
+        if engine.size != size {
+            engine.refreshRate = 0.0
+            engine.setGridSize(size: size)
+            sizeTextField.text = "\(size)"
+        }
     }
     
     @IBAction func refreshRateEditingDidEnd(_ sender: UITextField) {
         guard let text = sender.text else { return }
         guard let val = Double(text) else {
             showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
-                sender.text = "\(StandardEngine.getEngine().refreshRate)"
+                sender.text = "\(self.engine.refreshRate)"
             }
             return
         }
-        updateRefreshRate(rate: val)
         refreshRateSlider.value = Float(val)
+        updateRefreshRate(rate: val)
+    }
+    
+    @IBAction func refreshRateEditingDidEndOnExit(_ sender: Any) {
     }
     
     @IBAction func refreshRate(_ sender: UISlider) {
+        refreshRateTextField.text = "\(refreshRateSlider.value)"
         updateRefreshRate(rate: Double(refreshRateSlider.value))
     }
-
+    
     @IBAction func refreshOnOff(_ sender: UISwitch) {
         if sender.isOn {
+            refreshRateTextField.isEnabled = true
+            //refreshRateTextField.text = "\(refreshRatePreviousValue)"
+            refreshRateSlider.isEnabled = true
+            //refreshRateSlider.value = refreshRatePreviousValue
             updateRefreshRate(rate: Double(refreshRateSlider.value))
         } else {
+            //refreshRatePreviousValue = refreshRateSlider.value
+            //refreshRateSlider.value = 0.1
+            refreshRateSlider.isEnabled = false
+            //refreshRateTextField.text = "\(refreshRateSlider.value)"
+            refreshRateTextField.isEnabled = false
             updateRefreshRate(rate: 0.0)
         }
+        //updateRefreshRate(rate: Double(refreshRateSlider.value))
+        //setNeedsDisplay
     }
     
     private func updateRefreshRate(rate: Double) {
-        StandardEngine.getEngine().refreshRate = TimeInterval(rate)
-        refreshRateTextField.text = "\(rate)"
+        engine.refreshRate = rate
+        //if refreshRateSlider.isEnabled {
+        //refreshRateTextField.text = "\(rate)"
+        //}
     }
     
     //MARK: AlertController Handling

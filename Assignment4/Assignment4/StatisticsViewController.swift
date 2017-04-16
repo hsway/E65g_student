@@ -2,7 +2,7 @@
 //  StatisticsViewController.swift
 //  Assignment4
 //
-//  Created by Hank Sway on 4/14/17.
+//  Created by Hank on 4/10/17.
 //  Copyright © 2017 Harvard Division of Continuing Education. All rights reserved.
 //
 

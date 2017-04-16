@@ -1,13 +1,14 @@
-//
-//  GridView.swift
-//  Assignment3
-//
-//  Created by Hank Sway on 3/17/17.
-//  Copyright © 2017 Harvard Division of Continuing Education. All rights reserved.
-//
-import UIKit
-
-@IBDesignable class GridView: UIView, GridViewDataSource {
+ //
+ //  GridView.swift
+ //  Assignment3
+ //
+ //  Created by Hank on 3/12/17.
+ //  Copyright © 2017 Harvard Division of Continuing Education. All rights reserved.
+ //
+ 
+ import UIKit
+ 
+ @IBDesignable class GridView: UIView, GridViewDataSource {
     @IBInspectable var size: Int = 10
     
     /*@IBInspectable var size: Int = 10 {
@@ -21,7 +22,7 @@ import UIKit
     @IBInspectable var bornColor:   UIColor = UIColor(red: 0, green: 0.5, blue: 0, alpha: 0.6)
     @IBInspectable var diedColor:   UIColor = UIColor.darkGray.withAlphaComponent(0.6)
     @IBInspectable var gridColor:   UIColor = UIColor.black
-        
+    
     @IBInspectable var gridWidth:CGFloat = CGFloat(2)
     
     var engine: StandardEngine!
@@ -173,4 +174,4 @@ import UIKit
         
         return GridPosition(row: Int(row), col: Int(col))
     }
-}
+ }
