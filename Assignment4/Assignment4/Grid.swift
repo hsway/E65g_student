@@ -1,6 +1,8 @@
 //
 //  Grid.swift
 //
+import Foundation
+
 public typealias GridPosition = (row: Int, col: Int)
 public typealias GridSize = (rows: Int, cols: Int)
 
@@ -17,12 +19,16 @@ public enum CellState {
     }
 }
 
+public protocol GridViewDataSource {
+    subscript (row: Int, col: Int) -> CellState { get set }
+}
+
 public protocol GridProtocol {
     init(_ rows: Int, _ cols: Int, cellInitializer: (GridPosition) -> CellState)
     var description: String { get }
     var size: GridSize { get }
     subscript (row: Int, col: Int) -> CellState { get set }
-    func next() -> Self 
+    func next() -> Self //@discardableResult
 }
 
 public let lazyPositions = { (size: GridSize) in
@@ -31,6 +37,7 @@ public let lazyPositions = { (size: GridSize) in
         .map { zip( [Int](repeating: $0, count: size.cols) , 0 ..< size.cols ) }
         .flatMap { $0 }
         .map { GridPosition($0) }
+//        .map { GridPosition(row: $0.0,col: $0.1) }
 }
 
 
@@ -139,5 +146,80 @@ public extension Grid {
         case (0, 1), (1, 2), (2, 0), (2, 1), (2, 2): return .alive
         default: return .empty
         }
+    }
+}
+
+public protocol EngineDelegate {
+    func engineDidUpdate(withGrid: GridProtocol)
+}
+
+public protocol EngineProtocol {
+    var delegate: EngineDelegate? { get set }
+    var grid: GridProtocol { get }
+    var refreshRate: Double { get set } //how can you default this to zero?
+    var refreshTimer: Timer? { get set }
+    //var rows: Int { get set }
+    //var cols: Int { get set }
+    var size: Int { get set }
+    //init(rows: Int, cols: Int)
+    init(size: Int)
+    func step() -> GridProtocol
+}
+
+class StandardEngine: EngineProtocol {
+    var grid: GridProtocol
+    var delegate: EngineDelegate?
+    //var rows: Int
+    //var cols: Int
+    var size: Int
+    
+    //private static var engine: StandardEngine = StandardEngine(rows: 10, cols: 10)
+    private static var engine: StandardEngine = StandardEngine(size: 10)
+    
+    //required init(rows: Int, cols: Int) {
+    required init(size: Int) {
+        //self.grid = Grid(rows, cols, cellInitializer: { _,_ in .empty })
+        self.grid = Grid(size, size, cellInitializer: { _,_ in .empty })
+        //self.rows = rows
+        //self.cols = cols
+        self.size = size
+        delegate?.engineDidUpdate(withGrid: self.grid)
+    }
+    
+    var refreshTimer: Timer?
+    var refreshRate: TimeInterval = 0.0 {
+        didSet {
+            if refreshRate > 0.0 {
+                refreshTimer? = Timer.scheduledTimer(
+                    withTimeInterval: refreshRate,
+                    repeats: true
+                ) { (t: Timer) in
+                    _ = self.step()
+                }
+            }
+            else {
+                refreshTimer?.invalidate()
+                refreshTimer = nil
+            }
+        }
+    }
+    
+    func step() -> GridProtocol {
+        let newGrid = grid.next()
+        self.grid = newGrid
+        delegate?.engineDidUpdate(withGrid: self.grid)
+        return grid
+    }
+    
+    func setGridSize(size: Int) {
+        self.grid = Grid(size, size, cellInitializer: { _,_ in .empty})
+        //self.rows = size
+        //self.cols = size
+        self.size = size
+        delegate?.engineDidUpdate(withGrid: self.grid)
+    }
+    
+    static func getEngine() -> StandardEngine {
+        return StandardEngine.engine
     }
 }

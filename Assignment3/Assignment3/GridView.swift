@@ -128,7 +128,7 @@ import UIKit
         
         let r = pos.row
         let c = pos.col
-        grid[row: r, col: c] = grid[row: r, col: c].toggle(value: grid[row: r, col: c])
+        grid[r, c] = grid[r, c].toggle(value: grid[row: r, col: c])
         
         setNeedsDisplay()
         return pos
