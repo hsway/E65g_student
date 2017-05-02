@@ -10,11 +10,9 @@ public protocol GridProtocol{
     func next() -> Self
 }
 
-
 public typealias Position = (row: Int, col: Int)
 public typealias PositionSequence = [Position]
 
-// Implement the wrap around rules
 public func normalize(position: Position, to modulus: Position) -> Position {
     let modRows = modulus.row, modCols = modulus.col
     return Position(
@@ -23,13 +21,11 @@ public func normalize(position: Position, to modulus: Position) -> Position {
     )
 }
 
-// Provide a sequence of all positions in a range
 public func positionSequence (from: Position, to: Position) -> PositionSequence {
     return (from.row ..< to.row)
         .map { row in zip( [Int](repeating: row, count: to.col - from.col), from.col ..< to.col ) }
         .flatMap { $0 }
 }
-
 
 public struct Cell {
     var position = Position(row:0, col:0)
@@ -48,16 +44,14 @@ public struct Grid : GridViewDataSource, GridProtocol {
     public func getGridSize() -> Int{
         return _cells.count
     }
-    // Get and Set cell states by position
+    
     public subscript (pos: Position) -> CellState {
         get { let pos = normalize(position: pos, to: modulus); return _cells[pos.row][pos.col].state }
         set { let pos = normalize(position: pos, to: modulus); _cells[pos.row][pos.col].state = newValue }
     }
     
-    // Allow access to the sequence of positions
     public let positions: PositionSequence
     
-    // Initialize _cells and positions
     public init(_ rows: Int, _ cols: Int, cellInitializer: (Position) -> CellState = { _, _ in .empty } ) {
         _cells = [[Cell]]( repeatElement( [Cell](repeatElement(Cell(), count: rows)), count: cols) )
         positions = positionSequence(from: Position(0,0), to: Position(rows, cols))
@@ -69,6 +63,7 @@ public struct Grid : GridViewDataSource, GridProtocol {
         (row:  0, col:  -1),                     (row:  0, col:  1),
         (row:  1, col:  -1), (row:  1, col:  0), (row:  1, col:  1)
     ]
+    
     private func neighbors(of position: Position) -> [CellState] {
         return Grid.offsets.map {
             let neighbor = normalize(position: Position(
@@ -87,7 +82,6 @@ public struct Grid : GridViewDataSource, GridProtocol {
         }
     }
     
-    // Generate the next state of the grid
     public func next() -> Grid {
         var nextGrid = Grid(modulus.row, modulus.col)
         positions.forEach { nextGrid[$0] = self.nextState(of: $0) }
@@ -97,17 +91,20 @@ public struct Grid : GridViewDataSource, GridProtocol {
 }
 
 public extension Grid {
+    
     public var description: String {
         return positions
             .map { (self[$0].isAlive ? "*" : " ") + ($0.1 == self.modulus.col - 1 ? "\n" : "") }
             .joined()
     }
+    
     public var living: [Position] { return positions.filter { return  self[$0].isAlive   } }
     public var dead  : [Position] { return positions.filter { return !self[$0].isAlive   } }
     public var alive : [Position] { return positions.filter { return  self[$0] == .alive } }
     public var born  : [Position] { return positions.filter { return  self[$0] == .born  } }
     public var died  : [Position] { return positions.filter { return  self[$0] == .died  } }
     public var empty : [Position] { return positions.filter { return  self[$0] == .empty } }
+
 }
 
 extension Grid: Sequence {
@@ -170,7 +167,6 @@ extension Grid: Sequence {
     }
 }
 
-
 public struct GridPosition: Equatable{
     var row: Int
     var col: Int
@@ -202,9 +198,11 @@ public enum CellState: String {
             return rawValue
         }
     }
+    
     public func allValues() -> Array<String>{
         return ["alive", "empty", "born", "died"]
     }
+    
     public func toggle(_ value: CellState) -> CellState{
         switch value{
         case .alive, .born:
@@ -213,6 +211,7 @@ public enum CellState: String {
             return .alive
         }
     }
+    
     public var isAlive: Bool {
         switch self {
         case .alive, .born: return true

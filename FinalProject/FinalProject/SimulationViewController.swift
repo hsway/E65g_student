@@ -74,9 +74,9 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         let confirmAction = UIAlertAction(title: "Confirm", style: .default) { (_) in
             if let field = alertController.textFields?[0] {
                 if let text = field.text {
-                    if !InstrumentationViewController.tableData.contains(text){
-                        InstrumentationViewController.tableData.append(text)
-                        InstrumentationViewController.gridStateDataDict[text] = self.gridStateData
+                    if !InstrumentationViewController.tableStrings.contains(text){
+                        InstrumentationViewController.tableStrings.append(text)
+                        InstrumentationViewController.gridState[text] = self.gridStateData
                         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "load"), object: nil)
                         
                     }else{

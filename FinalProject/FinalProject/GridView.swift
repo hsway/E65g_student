@@ -1,8 +1,6 @@
 //
 //  GridView.swift
 //
-//  GridView.swift
-//
 //  Created by Hank Sway on 4/24/17.
 //
 
@@ -15,12 +13,15 @@ public protocol GridViewDataSource {
 
 @IBDesignable class GridView: UIView {
     
-    @IBInspectable var size:Int = 60
+    // setting higher to account for patterns defined in JSON file
+    @IBInspectable var size: Int = 60
+    
     @IBInspectable var livingColor: UIColor = UIColor(red: 0, green: 0.5, blue: 0, alpha: 1.0)
     @IBInspectable var emptyColor:  UIColor = UIColor.darkGray
     @IBInspectable var bornColor:   UIColor = UIColor(red: 0, green: 0.5, blue: 0, alpha: 0.6)
     @IBInspectable var diedColor:   UIColor = UIColor.darkGray.withAlphaComponent(0.6)
-    @IBInspectable var gridColor : UIColor = UIColor.black
+    @IBInspectable var gridColor:   UIColor = UIColor.black
+    
     @IBInspectable var gridWidth: CGFloat = 0.0
     
     var theGrid: GridViewDataSource?
@@ -72,7 +73,6 @@ public protocol GridViewDataSource {
             }
         }
         
-        //create the path
         (0 ... self.size).forEach {
             drawLine(
                 start: CGPoint(x: CGFloat($0)/CGFloat(self.size) * rect.size.width, y: 0.0),
@@ -88,18 +88,9 @@ public protocol GridViewDataSource {
     
     func drawLine(start:CGPoint, end: CGPoint) {
         let path = UIBezierPath()
-        
-        //set the path's line width to the height of the stroke
         path.lineWidth = gridWidth
-        
-        //move the initial point of the path
-        //to the start of the horizontal stroke
         path.move(to: start)
-        
-        //add a point to the path at the end of the stroke
         path.addLine(to: end)
-        
-        //draw the stroke
         gridColor.setStroke()
         path.stroke()
     }
@@ -114,7 +105,6 @@ public protocol GridViewDataSource {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         lastTouchedPosition = nil
-        // Whenever the grid is created or changed publish the grid object using an NSNotification.
         let nc = NotificationCenter.default
         let name = Notification.Name(rawValue: "EngineUpdate")
         let n = Notification(name: name,
@@ -134,7 +124,6 @@ public protocol GridViewDataSource {
         
         if theGrid != nil {
             theGrid![(Int(pos.row),Int(pos.col))] = theGrid![(Int(pos.row),Int(pos.col))].isAlive ? .empty : .alive
-            
             setNeedsDisplay()
         }
         return pos

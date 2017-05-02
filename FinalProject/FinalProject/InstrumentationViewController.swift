@@ -7,74 +7,64 @@
 import UIKit
 
 class InstrumentationViewController: UIViewController, EngineDelegate, UITableViewDelegate, UITableViewDataSource {
-    @IBOutlet weak var tableView: UITableView!
-
-    // size input text field
-    @IBOutlet weak var sizeInput: UITextField!
-    // stepper followed by size input
-    @IBOutlet weak var sizeStepper: UIStepper!
-    // frequecy control slider
-    @IBOutlet weak var Slider2: UISlider!
-    // the switch control grid to be on and off
-    @IBOutlet weak var mySwitch: UISwitch!
-    // an array has all the title name of json data
-    static var tableData:[String] = []
-    // a diciontary pased from json data, key is the title name, value is an array of cell positions(pos are array of Int)
-    static var gridStateDataDict:[String: [[Int]]] = [:]
     
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var sizeInput: UITextField!
+    @IBOutlet weak var sizeStepper: UIStepper!
+    @IBOutlet weak var refreshSlider: UISlider!
+    @IBOutlet weak var refreshSwitch: UISwitch!
+    
+    static var tableStrings:[String] = []
+    static var gridState:[String: [[Int]]] = [:]
     var engine: StandardEngine!
+    
+    let finalProjectURL: String = "https://dl.dropboxusercontent.com/u/7544475/S65g.json"
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
-        // get the singleton engine from standardEngine class
+
         engine = StandardEngine.engine
-    
-        // set delegate to recieve notification from standard engine
         engine.delegate = self
         
-        // default swith state is off
-        mySwitch.setOn(false, animated: true)
+        refreshSwitch.setOn(false, animated: true)
         NotificationCenter.default.addObserver(self, selector: #selector(do_table_refresh), name: NSNotification.Name(rawValue: "load"), object: nil)
         
-        // HS added this
-        get_data_from_url("https://dl.dropboxusercontent.com/u/7544475/S65g.json")
-        
+        loadJSON(finalProjectURL)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.isNavigationBarHidden = false
-        let addPatternButton = UIBarButtonItem(title: "+ New Pattern", style: .plain, target: self, action: #selector(InstrumentationViewController.addRowItem))
-        navigationItem.leftBarButtonItem = addPatternButton
         
-//        let addJsonButton = UIBarButtonItem(title: "Load Json", style: .plain, target: self, action: #selector(InstrumentationViewController.loadJson))
-//        navigationItem.leftBarButtonItem = addJsonButton
+        let newPatternButton = UIBarButtonItem(title: "+ New Pattern",
+                                               style: .plain,
+                                               target: self,
+                                               action: #selector(InstrumentationViewController.addPattern))
+        navigationItem.leftBarButtonItem = newPatternButton
     }
     
-//    func loadJson(){
-//        get_data_from_url("https://dl.dropboxusercontent.com/u/7544475/S65g.json")
-//
-//    }
-    
-    func addRowItem(){
-        
-        let alertController = UIAlertController(title: "New Pattern", message: "Enter new pattern name:", preferredStyle: .alert)
+    func addPattern(){
+        let ac = UIAlertController(title: "New Pattern",
+                                                message: "Enter new pattern name:",
+                                                preferredStyle: .alert)
         
         let confirmAction = UIAlertAction(title: "OK", style: .default) { (_) in
-            if let field = alertController.textFields?[0] {
+            if let field = ac.textFields?[0] {
                 if let text = field.text {
-                    if !InstrumentationViewController.tableData.contains(text){
-                        InstrumentationViewController.tableData.append(text)
-                        InstrumentationViewController.gridStateDataDict[text] = []
+                    if !InstrumentationViewController.tableStrings.contains(text){
+                        InstrumentationViewController.tableStrings.append(text)
+                        InstrumentationViewController.gridState[text] = []
                         self.tableView.beginUpdates()
-                        self.tableView.insertRows(at: [IndexPath(row: InstrumentationViewController.tableData.count-1, section: 0)], with: .automatic)
+                        self.tableView.insertRows(at: [IndexPath(row: InstrumentationViewController.tableStrings.count-1,
+                                                                 section: 0)],
+                                                                 with: .automatic)
                         self.tableView.endUpdates()
-                    }else{
-                        let nameTakenAlert = UIAlertController(title: "Error", message:
+                    } else {
+                        let alreadyExistsAlert = UIAlertController(title: "Error", message:
                             "\"\(text)\" already exists", preferredStyle: UIAlertControllerStyle.alert)
-                        nameTakenAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default,handler: nil))
-                        self.present(nameTakenAlert, animated: true, completion: nil)
+                        alreadyExistsAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default,handler: nil))
+                        self.present(alreadyExistsAlert, animated: true, completion: nil)
                     }
                 }
             }
@@ -82,29 +72,26 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
         
-        alertController.addTextField { (textField) in
-            textField.placeholder = ""
-        }
-        
-        alertController.addAction(confirmAction)
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
-        
+        ac.addTextField { (textField) in textField.placeholder = "" }
+        ac.addAction(confirmAction)
+        ac.addAction(cancelAction)
+        self.present(ac, animated: true, completion: nil)
     }
+    
+    // pick up here
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return InstrumentationViewController.tableData.count
+        return InstrumentationViewController.tableStrings.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "basicCell", for: indexPath)
         let label = cell.contentView.subviews.first as! UILabel
-        label.text = InstrumentationViewController.tableData[indexPath.item]
+        label.text = InstrumentationViewController.tableStrings[indexPath.item]
         return cell
     }
 
@@ -144,11 +131,11 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         
         let indexPath = tableView.indexPathForSelectedRow
         if let indexPath = indexPath {
-            let titleName = InstrumentationViewController.tableData[indexPath.row]
-            let gridStateData = InstrumentationViewController.gridStateDataDict[titleName]
+            let titleName = InstrumentationViewController.tableStrings[indexPath.row]
+            let gridStateData = InstrumentationViewController.gridState[titleName]
             if let vc = segue.destination as? GridEditorViewController {
-                vc.titleName = titleName
-                vc.gridStateData = gridStateData
+                vc.name = titleName
+                vc.gridData = gridStateData
             }
         }
     }
@@ -182,12 +169,12 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
     
     // switch on and off to control the grid
     @IBAction func timerSwitch(_ sender: Any) {
-        if mySwitch.isOn {
+        if refreshSwitch.isOn {
             if engine.timer != nil{
                 engine.timer!.invalidate()
                 engine.timer = nil
             }
-            engine.timerInterval = TimeInterval(Slider2.value)
+            engine.timerInterval = TimeInterval(refreshSlider.value)
         }else{
             engine.timerInterval = 0.0
         }
@@ -195,12 +182,12 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
     
     //frequency values from 0.1 to 10hz
     @IBAction func freqSlider(_ sender: Any) {
-        if mySwitch.isOn {
+        if refreshSwitch.isOn {
             if engine.timer != nil{
                 engine.timer!.invalidate()
                 engine.timer = nil
             }
-            engine.timerInterval = TimeInterval(Slider2.value)
+            engine.timerInterval = TimeInterval(refreshSlider.value)
         }
     }
     // implementation of EngineDelegate protocol
@@ -212,7 +199,7 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         set {  engine.theGrid[pos] = newValue }
     }
 
-    func get_data_from_url(_ link:String) {
+    func loadJSON(_ link:String) {
         let url:URL = URL(string: link)!
         let session = URLSession.shared
         
@@ -252,9 +239,9 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
             for i in 0 ..< data_list.count{
                 if let shape_obj = shape_list[i] as? NSDictionary{
                     if let title = shape_obj["title"] as? String , let gridState = shape_obj["contents"] as? [[Int]]{
-                        if !InstrumentationViewController.tableData.contains(title){
-                            InstrumentationViewController.tableData.append(title)
-                            InstrumentationViewController.gridStateDataDict[title] = gridState
+                        if !InstrumentationViewController.tableStrings.contains(title){
+                            InstrumentationViewController.tableStrings.append(title)
+                            InstrumentationViewController.gridState[title] = gridState
                         }else{
                             let nameTakenAlert = UIAlertController(title: "Error", message:
                                 "\"\(title)\" already exsits", preferredStyle: UIAlertControllerStyle.alert)
@@ -273,6 +260,4 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
     {
         self.tableView.reloadData()
     }
-
 }
-
