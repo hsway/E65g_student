@@ -163,7 +163,7 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                                 <connections>
-                                                    <action selector="setSize:" destination="8rJ-Kc-sve" eventType="editingDidEnd" id="Thb-fD-Cbj"/>
+                                                    <action selector="setGridSize:" destination="8rJ-Kc-sve" eventType="editingDidEnd" id="BMv-es-K8V"/>
                                                 </connections>
                                             </textField>
                                             <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="60" minimumValue="5" maximumValue="150" stepValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="EM0-Su-BKY">
@@ -172,7 +172,7 @@
                                                     <constraint firstAttribute="width" constant="94" id="Mub-ZE-Svr"/>
                                                 </constraints>
                                                 <connections>
-                                                    <action selector="sizeStepper:" destination="8rJ-Kc-sve" eventType="valueChanged" id="ics-UZ-Zsn"/>
+                                                    <action selector="sizeStep:" destination="8rJ-Kc-sve" eventType="valueChanged" id="zav-pQ-rcS"/>
                                                 </connections>
                                             </stepper>
                                         </subviews>
@@ -194,7 +194,7 @@
                                                     <constraint firstAttribute="width" constant="70" id="vfj-S6-8Z4"/>
                                                 </constraints>
                                                 <connections>
-                                                    <action selector="freqSlider:" destination="8rJ-Kc-sve" eventType="valueChanged" id="MYM-Y5-Mu8"/>
+                                                    <action selector="refreshRate:" destination="8rJ-Kc-sve" eventType="valueChanged" id="GjK-3U-vMd"/>
                                                 </connections>
                                             </slider>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Refresh Rate" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EIs-Vy-U7F" userLabel="Refresh Rate Label">
@@ -209,7 +209,7 @@
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Fhi-Nf-EWS" userLabel="Refresh Rate Switch">
                                                 <rect key="frame" x="40" y="121.5" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="timerSwitch:" destination="8rJ-Kc-sve" eventType="valueChanged" id="vWs-av-Vev"/>
+                                                    <action selector="refreshOnOff:" destination="8rJ-Kc-sve" eventType="valueChanged" id="jet-7f-Cye"/>
                                                 </connections>
                                             </switch>
                                         </subviews>

@@ -29,8 +29,12 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         engine.delegate = self
         
         refreshSwitch.setOn(false, animated: true)
-        NotificationCenter.default.addObserver(self, selector: #selector(do_table_refresh), name: NSNotification.Name(rawValue: "load"), object: nil)
-        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reloadTableView),
+            name: NSNotification.Name(rawValue: "load"),
+            object: nil
+        )
         loadJSON(finalProjectURL)
     }
     
@@ -44,10 +48,65 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         navigationItem.leftBarButtonItem = newPatternButton
     }
     
+    func loadJSON(_ link:String) {
+        let url:URL = URL(string: link)!
+        let urlsession = URLSession.shared
+        let urlrequest = NSMutableURLRequest(url: url)
+        urlrequest.httpMethod = "GET"
+        urlrequest.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
+        
+        let dataTask = urlsession.dataTask(with: urlrequest as URLRequest, completionHandler: { (data, urlresponse, error) in
+            guard let _:Data = data, let _:URLResponse = urlresponse , error == nil else {
+                return
+            }
+            self.readJSON(data!)
+        })
+        dataTask.resume()
+    }
+    
+    
+    func readJSON(_ data: Data){
+        let json: Any?
+        
+        do { json = try JSONSerialization.jsonObject(with: data, options: []) }
+        catch { return }
+        
+        guard let jsonArray = json as? NSArray else { return }
+        
+        if let patternArray = json as? NSArray{
+            for i in 0 ..< jsonArray.count{
+                if let patternItem = patternArray[i] as? NSDictionary{
+                    if let title = patternItem["title"] as? String , let gridState = patternItem["contents"] as? [[Int]] {
+                        if !InstrumentationViewController.tableStrings.contains(title) {
+                            InstrumentationViewController.tableStrings.append(title)
+                            InstrumentationViewController.gridState[title] = gridState
+                        } else {
+                            let alreadyExistsAlert = UIAlertController(
+                                title: "Error",
+                                message: "\"\(title)\" already exists",
+                                preferredStyle: UIAlertControllerStyle.alert
+                            )
+                            alreadyExistsAlert.addAction(UIAlertAction(
+                                title: "OK",
+                                style: UIAlertActionStyle.default,handler: nil
+                            ))
+                            self.present(alreadyExistsAlert, animated: true, completion: nil)
+                        }
+                    }
+                }
+            }
+        }
+        DispatchQueue.main.async(execute: { self.reloadTableView() })
+    }
+    
+    func reloadTableView() { self.tableView.reloadData() }
+
     func addPattern(){
-        let ac = UIAlertController(title: "New Pattern",
-                                                message: "Enter new pattern name:",
-                                                preferredStyle: .alert)
+        let ac = UIAlertController(
+            title: "New Pattern",
+            message: "Enter new pattern name:",
+            preferredStyle: .alert
+        )
         
         let confirmAction = UIAlertAction(title: "OK", style: .default) { (_) in
             if let field = ac.textFields?[0] {
@@ -61,9 +120,15 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
                                                                  with: .automatic)
                         self.tableView.endUpdates()
                     } else {
-                        let alreadyExistsAlert = UIAlertController(title: "Error", message:
-                            "\"\(text)\" already exists", preferredStyle: UIAlertControllerStyle.alert)
-                        alreadyExistsAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default,handler: nil))
+                        let alreadyExistsAlert = UIAlertController(
+                            title: "Error",
+                            message: "\"\(text)\" already exists",
+                            preferredStyle: UIAlertControllerStyle.alert
+                        )
+                        alreadyExistsAlert.addAction(UIAlertAction(
+                            title: "OK",
+                            style: UIAlertActionStyle.default,handler: nil
+                        ))
                         self.present(alreadyExistsAlert, animated: true, completion: nil)
                     }
                 }
@@ -78,12 +143,6 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         self.present(ac, animated: true, completion: nil)
     }
     
-    // pick up here
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return InstrumentationViewController.tableStrings.count
     }
@@ -95,169 +154,83 @@ class InstrumentationViewController: UIViewController, EngineDelegate, UITableVi
         return cell
     }
 
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool { return true }
     
-    // Override to support editing the table view.
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // Delete the row from the data source
             tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }
+        } else if editingStyle == .insert {}
     }
     
-    // Override to support rearranging the table view.
-    func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-        
-    }
+    func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {}
     
-    //   support conditional rearranging of the table view.
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool { return true }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        // change the backbutton text from "back" to "Cancel"
-        let backItem = UIBarButtonItem()
-        backItem.title = "Cancel"
-        navigationItem.backBarButtonItem = backItem
-
+        let cancelButton = UIBarButtonItem()
+        cancelButton.title = "Cancel"
+        navigationItem.backBarButtonItem = cancelButton
         
         let indexPath = tableView.indexPathForSelectedRow
         if let indexPath = indexPath {
-            let titleName = InstrumentationViewController.tableStrings[indexPath.row]
-            let gridStateData = InstrumentationViewController.gridState[titleName]
+            let title = InstrumentationViewController.tableStrings[indexPath.row]
+            let gridState = InstrumentationViewController.gridState[title]
             if let vc = segue.destination as? GridEditorViewController {
-                vc.name = titleName
-                vc.gridData = gridStateData
+                vc.name = title
+                vc.gridData = gridState
             }
         }
     }
     
-    @IBAction func setSize(_ sender: UITextField) {
+    @IBAction func refreshOnOff(_ sender: Any) {
+        if refreshSwitch.isOn {
+            if engine.timer != nil {
+                engine.timer!.invalidate()
+                engine.timer = nil
+            }
+            engine.timerInterval = TimeInterval(refreshSlider.value)
+        } else { engine.timerInterval = 0.0 }
+    }
+    
+    @IBAction func refreshRate(_ sender: Any) {
+        if refreshSwitch.isOn {
+            if engine.timer != nil{
+                engine.timer!.invalidate()
+                engine.timer = nil
+            }
+            engine.timerInterval = TimeInterval(refreshSlider.value)
+        }
+    }
+    
+    @IBAction func setGridSize(_ sender: UITextField) {
         if Int(sender.text!) != nil {
             sizeStepper.value = Double(sizeInput.text!)!
         }
-        let nb = NotificationCenter.default
-        let nameb = Notification.Name(rawValue: "EngineUpdate")
-        let n = Notification(name: nameb,
+        let nc = NotificationCenter.default
+        let name = Notification.Name(rawValue: "EngineUpdate")
+        let n = Notification(name: name,
                              object: nil,
                              userInfo: ["engine" : self])
-        nb.post(n)
+        nc.post(n)
     }
-
-    // Stepper to change the size of grid
-    // inital value is 20
-    // use notification center to update the gridview
-    @IBAction func sizeStepper(_ sender: UIStepper) {
+    
+    @IBAction func sizeStep(_ sender: UIStepper) {
         sizeInput.text = String(Int(sender.value))
         engine.theGrid = Grid(Int(sender.value), Int(sender.value))
-        let nb = NotificationCenter.default
-        let nameb = Notification.Name(rawValue: "EngineUpdate")
-        let n = Notification(name: nameb,
+        let nc = NotificationCenter.default
+        let name = Notification.Name(rawValue: "EngineUpdate")
+        let n = Notification(name: name,
                              object: nil,
                              userInfo: ["engine" : self])
-        nb.post(n)
+        nc.post(n)
     }
     
+    // EngineDelegate protocol
+    func engineDidUpdate(withGrid: GridProtocol){}
     
-    // switch on and off to control the grid
-    @IBAction func timerSwitch(_ sender: Any) {
-        if refreshSwitch.isOn {
-            if engine.timer != nil{
-                engine.timer!.invalidate()
-                engine.timer = nil
-            }
-            engine.timerInterval = TimeInterval(refreshSlider.value)
-        }else{
-            engine.timerInterval = 0.0
-        }
-    }
-    
-    //frequency values from 0.1 to 10hz
-    @IBAction func freqSlider(_ sender: Any) {
-        if refreshSwitch.isOn {
-            if engine.timer != nil{
-                engine.timer!.invalidate()
-                engine.timer = nil
-            }
-            engine.timerInterval = TimeInterval(refreshSlider.value)
-        }
-    }
-    // implementation of EngineDelegate protocol
-    func engineDidUpdate(withGrid: GridProtocol){
-    }
-    // implementation of GridViewDataSource protocol
+    // GridViewDataSource protocol
     public subscript (pos: Position) -> CellState {
         get {  return engine.theGrid[pos] }
         set {  engine.theGrid[pos] = newValue }
-    }
-
-    func loadJSON(_ link:String) {
-        let url:URL = URL(string: link)!
-        let session = URLSession.shared
-        
-        let request = NSMutableURLRequest(url: url)
-        request.httpMethod = "GET"
-        request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
-        
-        let task = session.dataTask(with: request as URLRequest, completionHandler: {
-            (
-            data, response, error) in
-            
-            guard let _:Data = data, let _:URLResponse = response  , error == nil else {
-                print("Failed to get json")
-                return
-            }
-            self.extract_json(data!)
-        })
-        task.resume()
-    }
-    
-    
-    func extract_json(_ data: Data){
-        let json: Any?
-        
-        do {
-            json = try JSONSerialization.jsonObject(with: data, options: [])
-        }
-        catch {
-            return
-        }
-        
-        guard let data_list = json as? NSArray else {
-            return
-        }
-        
-        if let shape_list = json as? NSArray{
-            for i in 0 ..< data_list.count{
-                if let shape_obj = shape_list[i] as? NSDictionary{
-                    if let title = shape_obj["title"] as? String , let gridState = shape_obj["contents"] as? [[Int]]{
-                        if !InstrumentationViewController.tableStrings.contains(title){
-                            InstrumentationViewController.tableStrings.append(title)
-                            InstrumentationViewController.gridState[title] = gridState
-                        }else{
-                            let nameTakenAlert = UIAlertController(title: "Error", message:
-                                "\"\(title)\" already exsits", preferredStyle: UIAlertControllerStyle.alert)
-                            nameTakenAlert.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default,handler: nil))
-                            self.present(nameTakenAlert, animated: true, completion: nil)
-                        }
-                    }
-                }
-            }
-        }
-        DispatchQueue.main.async(execute: {self.do_table_refresh()})
-        
-    }
-    
-    func do_table_refresh()
-    {
-        self.tableView.reloadData()
     }
 }
