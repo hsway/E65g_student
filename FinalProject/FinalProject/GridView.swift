@@ -25,13 +25,58 @@ public protocol GridViewDataSource {
     @IBInspectable var gridWidth: CGFloat = 0.0
     
     var theGrid: GridViewDataSource?
+    var lastTouchedPosition: GridPosition?
 
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        lastTouchedPosition = process(touches: touches)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        lastTouchedPosition = process(touches: touches)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        lastTouchedPosition = nil
+        let nc = NotificationCenter.default
+        let name = Notification.Name(rawValue: "EngineUpdate")
+        let n = Notification(name: name,
+                             object: nil,
+                             userInfo: ["engine" : self])
+        nc.post(n)
+    }
+    
+    func process(touches: Set<UITouch>) -> GridPosition? {
+        guard touches.count == 1 else { return nil }
+        let pos = convert(touch: touches.first!)
+        guard lastTouchedPosition?.row != pos.row
+            || lastTouchedPosition?.col != pos.col
+            else { return pos }
+        
+        if theGrid != nil {
+            theGrid![(Int(pos.row),Int(pos.col))] = theGrid![(Int(pos.row),Int(pos.col))].isAlive ? .empty : .alive
+            setNeedsDisplay()
+        }
+        return pos
+    }
+    
+    func convert(touch: UITouch) -> GridPosition {
+        let touchY = touch.location(in: self).y
+        let gridHeight = frame.size.height
+        let col = touchY / gridHeight * CGFloat(size)
+        
+        let touchX = touch.location(in: self).x
+        let gridWidth = frame.size.width
+        let row = touchX / gridWidth * CGFloat(size)
+        
+        return GridPosition(row: Int(row), col: Int(col))
+    }
+    
     override func draw(_ rect: CGRect) {
         let size = CGSize(
             width: rect.size.width / CGFloat((self.size)),
             height: rect.size.height / CGFloat((self.size))
         )
-       
+        
         let base = rect.origin
         (0 ... self.size).forEach { i in
             (0 ..< self.size).forEach { j in
@@ -44,7 +89,7 @@ public protocol GridViewDataSource {
                     size: size
                 )
                 let p = Position(i,j)
-             
+                
                 if let theGrid = theGrid {
                     switch theGrid[p].description() {
                         
@@ -57,12 +102,12 @@ public protocol GridViewDataSource {
                         let path = UIBezierPath(ovalIn: subRect)
                         emptyColor.setFill()
                         path.fill()
-                       
+                        
                     case "alive" :
                         let path = UIBezierPath(ovalIn: subRect)
                         livingColor.setFill()
                         path.fill()
-                       
+                        
                     case "died" :
                         let path = UIBezierPath(ovalIn: subRect)
                         diedColor.setFill()
@@ -93,51 +138,5 @@ public protocol GridViewDataSource {
         path.addLine(to: end)
         gridColor.setStroke()
         path.stroke()
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        lastTouchedPosition = process(touches: touches)
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        lastTouchedPosition = process(touches: touches)
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        lastTouchedPosition = nil
-        let nc = NotificationCenter.default
-        let name = Notification.Name(rawValue: "EngineUpdate")
-        let n = Notification(name: name,
-                             object: nil,
-                             userInfo: ["engine" : self])
-        nc.post(n)
-    }
-    
-    var lastTouchedPosition: GridPosition?
-    
-    func process(touches: Set<UITouch>) -> GridPosition? {
-        guard touches.count == 1 else { return nil }
-        let pos = convert(touch: touches.first!)
-        guard lastTouchedPosition?.row != pos.row
-            || lastTouchedPosition?.col != pos.col
-            else { return pos }
-        
-        if theGrid != nil {
-            theGrid![(Int(pos.row),Int(pos.col))] = theGrid![(Int(pos.row),Int(pos.col))].isAlive ? .empty : .alive
-            setNeedsDisplay()
-        }
-        return pos
-    }
-    
-    func convert(touch: UITouch) -> GridPosition {
-        let touchY = touch.location(in: self).y
-        let gridHeight = frame.size.height
-        let col = touchY / gridHeight * CGFloat(size)
-        
-        let touchX = touch.location(in: self).x
-        let gridWidth = frame.size.width
-        let row = touchX / gridWidth * CGFloat(size)
-        
-        return GridPosition(row: Int(row), col: Int(col))
     }
 }

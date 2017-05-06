@@ -43,7 +43,7 @@
                                         <rect key="frame" x="41" y="138" width="32" height="30"/>
                                         <state key="normal" title="Step"/>
                                         <connections>
-                                            <action selector="nextGrid:" destination="9pv-A4-QxB" eventType="touchUpInside" id="fQW-Im-jg5"/>
+                                            <action selector="next:" destination="9pv-A4-QxB" eventType="touchUpInside" id="K7m-Jz-GLD"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zy7-yH-yms">
@@ -57,7 +57,7 @@
                                         <rect key="frame" x="337.5" y="138" width="34" height="30"/>
                                         <state key="normal" title="Save"/>
                                         <connections>
-                                            <action selector="SaveToTableView:" destination="9pv-A4-QxB" eventType="touchUpInside" id="yez-je-1LT"/>
+                                            <action selector="saveGrid:" destination="9pv-A4-QxB" eventType="touchUpInside" id="BN4-Uj-WwO"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -409,7 +409,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Living:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elu-5M-Vl4" userLabel="Living">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alive:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elu-5M-Vl4" userLabel="Alive">
                                 <rect key="frame" x="110" y="321" width="100" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="OgA-FX-amm"/>
@@ -434,11 +434,11 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Statistics" image="statistics" id="hfv-Ly-u2G"/>
                     <connections>
-                        <outlet property="numBornCell" destination="831-JQ-6AP" id="GcU-Vy-yGh"/>
-                        <outlet property="numDiedCell" destination="MhD-qD-Koa" id="Gxc-he-vTv"/>
-                        <outlet property="numEmptyCell" destination="Dvd-KF-PUK" id="rYi-Ve-EEC"/>
-                        <outlet property="numLivingCell" destination="elu-5M-Vl4" id="yte-3V-dfP"/>
-                        <outlet property="statisticView" destination="LLc-10-0hq" id="wLb-6y-6aZ"/>
+                        <outlet property="alive" destination="elu-5M-Vl4" id="dx3-4s-dhD"/>
+                        <outlet property="born" destination="831-JQ-6AP" id="xIQ-l6-85A"/>
+                        <outlet property="died" destination="MhD-qD-Koa" id="2Vn-Ao-UIs"/>
+                        <outlet property="empty" destination="Dvd-KF-PUK" id="ltU-Qi-E2D"/>
+                        <outlet property="statsView" destination="LLc-10-0hq" id="6mp-zh-7nl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iSU-Gy-F0D" userLabel="First Responder" sceneMemberID="firstResponder"/>

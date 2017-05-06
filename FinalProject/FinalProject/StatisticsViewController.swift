@@ -7,53 +7,47 @@
 import UIKit
 
 class StatisticsViewController: UIViewController, EngineDelegate {
-    @IBOutlet weak var numLivingCell: UILabel!
-    
-    @IBOutlet weak var numBornCell: UILabel!
-    
-    @IBOutlet weak var numDiedCell: UILabel!
-    
-    @IBOutlet weak var numEmptyCell: UILabel!
-    
-    @IBOutlet var statisticView: UIView!
-    
+    @IBOutlet weak var alive: UILabel!
+    @IBOutlet weak var born: UILabel!
+    @IBOutlet weak var died: UILabel!
+    @IBOutlet weak var empty: UILabel!
+    @IBOutlet var statsView: UIView!
     
     var engine:StandardEngine!
     
     override func viewDidLoad() {
-       
-        // get the singleton engine from standardEngine class
         engine = StandardEngine.engine
         engine.delegate = self
         var countArray = self.engine.countCellState()
-        self.numLivingCell.text = "Living:  " + countArray[0]
-        self.numBornCell.text = "Born:  " + countArray[1]
-        self.numDiedCell.text = "Died:  " + countArray[2]
-        self.numEmptyCell.text = "Empty:  " + countArray[3]
+        self.alive.text = "Alive:  " + countArray[0]
+        self.born.text = "Born:  " + countArray[1]
+        self.died.text = "Died:  " + countArray[2]
+        self.empty.text = "Empty:  " + countArray[3]
 
         let nc = NotificationCenter.default
         let name = Notification.Name(rawValue: "EngineUpdate")
         nc.addObserver(
             forName: name,
             object: nil,
-            queue: nil) { (n) in
-                var countArray = self.engine.countCellState()
-                self.numLivingCell.text = "Living:  " + countArray[0]
-                self.numBornCell.text = "Born:  " + countArray[1]
-                self.numDiedCell.text = "Died:  " + countArray[2]
-                self.numEmptyCell.text = "Empty:  " + countArray[3]
-                self.statisticView.setNeedsDisplay()
+            queue: nil
+        ) { (n) in
+            var countArray = self.engine.countCellState()
+            self.alive.text = "Alive:  " + countArray[0]
+            self.born.text = "Born:  " + countArray[1]
+            self.died.text = "Died:  " + countArray[2]
+            self.empty.text = "Empty:  " + countArray[3]
+            self.statsView.setNeedsDisplay()
         }
         super.viewDidLoad()
     }
 
-    // implementation of EngineDelegate protoco
-    func engineDidUpdate(withGrid: GridProtocol){
+    // EngineDelegate protocol
+    func engineDidUpdate(withGrid: GridProtocol) {
         var countArray = self.engine.countCellState()
-        self.numLivingCell.text = countArray[0]
-        self.numBornCell.text = countArray[1]
-        self.numDiedCell.text = countArray[2]
-        self.numEmptyCell.text = countArray[3]
-        self.statisticView.setNeedsDisplay()
+        self.alive.text = countArray[0]
+        self.born.text = countArray[1]
+        self.died.text = countArray[2]
+        self.empty.text = countArray[3]
+        self.statsView.setNeedsDisplay()
     }
 }

@@ -32,8 +32,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     var window: UIWindow?
-    var pattern:[[Int]] = []
+    var pattern: [[Int]] = []
     var userDefaults: UserDefaults?
+    
+    func convertData(text: String) -> Any? {
+        if let data = text.data(using: .utf8) {
+            do { return try JSONSerialization.jsonObject(with: data, options: []) }
+            catch { print(error.localizedDescription) }
+        }
+        return nil
+    }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         let file = "data"
@@ -43,27 +51,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             do {
                 let data = try String(contentsOf: path, encoding: String.Encoding.utf8)
-                let json = convertToDictionary(text: data)
-                if let data_list = json as? NSArray {
-                    if let name_obj = data_list[0] as? NSDictionary {
-                        if let array = name_obj["saved"] as? [[Int]] { pattern = array }
+                let json = convertData(text: data)
+                if let dataArray = json as? NSArray {
+                    if let nameDict = dataArray[0] as? NSDictionary {
+                        if let array = nameDict["saved"] as? [[Int]] { pattern = array }
                     }
                 }
             }
-            catch { print("Error: Reading file") }
+            catch { print("error reading file") }
         }
         
         userDefaults = UserDefaults.standard
         userDefaults?.setValue(pattern, forKey: "pattern")
         userDefaults?.synchronize()
         return true
-    }
-    
-    func convertToDictionary(text: String) -> Any? {
-        if let data = text.data(using: .utf8) {
-            do { return try JSONSerialization.jsonObject(with: data, options: []) }
-            catch { print(error.localizedDescription) }
-        }
-        return nil
     }
 }

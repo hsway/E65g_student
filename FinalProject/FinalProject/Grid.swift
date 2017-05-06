@@ -76,9 +76,9 @@ public struct Grid : GridViewDataSource, GridProtocol {
     
     private func nextState(of position: Position) -> CellState {
         switch neighbors(of: position).filter({ $0.isAlive }).count {
-        case 2 where self[position].isAlive,
-             3: return self[position].isAlive ? .alive : .born
-        default: return self[position].isAlive ? .died  : .empty
+            case 2 where self[position].isAlive,
+                 3: return self[position].isAlive ? .alive : .born
+            default: return self[position].isAlive ? .died  : .empty
         }
     }
     
@@ -214,21 +214,21 @@ public enum CellState: String {
     
     public var isAlive: Bool {
         switch self {
-        case .alive, .born: return true
-        default: return false
+            case .alive, .born: return true
+            default: return false
         }
     }
 }
 
 func gliderInitializer(row: Int, col: Int) -> CellState {
     switch (row, col) {
-    case (0, 1), (1, 2), (2, 0), (2, 1), (2, 2): return .alive
-    default: return .empty
+        case (0, 1), (1, 2), (2, 0), (2, 1), (2, 2): return .alive
+        default: return .empty
     }
 }
 
 func allEmptyInitializer(row: Int, col: Int) -> CellState {
     switch (row, col) {
-    default: return .empty
+        default: return .empty
     }
 }
